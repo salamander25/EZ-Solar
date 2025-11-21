@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Frictionless, friendly solar with Salvador. Screenshot your bill, send it on WhatsApp, and see if solar makes sense without pressure or confusion." />
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -306,6 +310,8 @@
       display: block;
       width: 100%;
       height: auto;
+      background: #0b172e;
+      object-fit: cover;
     }
 
     .video-caption {
@@ -798,6 +804,31 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Keep only one video playing at a time so audio never overlaps.
+    const videos = Array.from(document.querySelectorAll("video"));
+    videos.forEach((video) => {
+      video.setAttribute("playsinline", "true");
+      video.addEventListener("play", () => {
+        videos.forEach((other) => {
+          if (other !== video && !other.paused) {
+            other.pause();
+          }
+        });
+      });
+    });
+
+    // Smoothly scroll to in-page anchors without abrupt jumps.
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", (event) => {
+        const targetId = anchor.getAttribute("href");
+        const target = document.querySelector(targetId);
+        if (target) {
+          event.preventDefault();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
   </script>
 </body>
 </html>

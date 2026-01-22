@@ -156,8 +156,10 @@
 
     .hero-right {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
     }
 
     .hero-card {
@@ -213,6 +215,126 @@
       font-size: 0.75rem;
       color: #9ca3af;
       margin-top: 0.7rem;
+    }
+
+    .hero-form-card {
+      width: 100%;
+      max-width: 360px;
+      background: #ffffff;
+      border-radius: 1.4rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+      padding: 1.2rem;
+    }
+
+    .hero-form-title {
+      font-size: 1.02rem;
+      font-weight: 650;
+      color: #0f172a;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-form-subtitle {
+      font-size: 0.9rem;
+      color: #4b5563;
+      margin-bottom: 0.85rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .form-group label {
+      font-size: 0.86rem;
+      color: #374151;
+      font-weight: 600;
+    }
+
+    .input-field,
+    .file-input {
+      width: 100%;
+      padding: 0.75rem 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      font-size: 0.92rem;
+      transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+    }
+
+    .input-field:focus,
+    .file-input:focus-visible {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+    }
+
+    .file-hint {
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+
+    .consent-text {
+      font-size: 0.78rem;
+      color: #4b5563;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border-radius: 0.95rem;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #ecfdf5;
+      font-weight: 650;
+      cursor: pointer;
+      font-size: 0.96rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      box-shadow: 0 12px 30px rgba(22, 163, 74, 0.35);
+      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(22, 163, 74, 0.45);
+    }
+
+    .form-status {
+      margin-top: 0.8rem;
+      font-size: 0.86rem;
+      border-radius: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      display: none;
+    }
+
+    .form-status.error {
+      display: block;
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .form-status.success {
+      display: block;
+      background: #ecfdf3;
+      color: #166534;
+      border: 1px solid #bbf7d0;
     }
 
     /* SECTIONS */
@@ -575,6 +697,41 @@
               Every home is different. I walk you through your specific numbers in plain language so it actually makes sense.
             </div>
           </div>
+
+          <div class="hero-form-card">
+            <div class="hero-form-title">Share your bill in 30 seconds.</div>
+            <div class="hero-form-subtitle">I’ll reply on WhatsApp with your numbers and a plain-language breakdown.</div>
+
+            <form id="lead-form" enctype="multipart/form-data" novalidate>
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input class="input-field" type="text" id="name" name="name" placeholder="Your name" required />
+              </div>
+
+              <div class="form-group">
+                <label for="contact">Email or phone</label>
+                <input class="input-field" type="text" id="contact" name="contact" placeholder="name@email.com or (555) 123-4567" required />
+              </div>
+
+              <div class="form-group">
+                <label for="address">Service address</label>
+                <input class="input-field" type="text" id="address" name="address" placeholder="123 Main St, City, CA" required />
+              </div>
+
+              <div class="form-group">
+                <label for="bill">Upload your latest bill</label>
+                <input class="file-input" type="file" id="bill" name="bill" accept="image/*,.pdf" required />
+                <div class="file-hint">PDF, JPG, or PNG. A quick photo is perfect.</div>
+              </div>
+
+              <div class="consent-text">
+                By tapping send, you consent to Sol Solar Solutions using this info to provide a solar estimate and to contact you via WhatsApp, SMS, or email. No spam, opt out anytime.
+              </div>
+
+              <button class="submit-btn" type="submit">🚀 Send &amp; Get My Numbers</button>
+              <div id="form-status" class="form-status" aria-live="polite"></div>
+            </form>
+          </div>
         </div>
       </div>
     </header>
@@ -798,6 +955,102 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    const form = document.getElementById("lead-form");
+    const statusEl = document.getElementById("form-status");
+    const submitBtn = form?.querySelector("button[type='submit']");
+    const FORM_ENDPOINT = "https://formspree.io/f/moqojgzb";
+
+    const isValidContact = (value) => {
+      const trimmed = value.trim();
+      if (!trimmed) return false;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const numeric = trimmed.replace(/[^0-9]/g, "");
+      const phoneValid = numeric.length >= 7;
+      return emailRegex.test(trimmed) || phoneValid;
+    };
+
+    const showStatus = (type, message) => {
+      if (!statusEl) return;
+      statusEl.className = type ? `form-status ${type}` : "form-status";
+      statusEl.innerHTML = message;
+      statusEl.style.display = message ? "block" : "none";
+    };
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const contact = document.getElementById("contact").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const billInput = document.getElementById("bill");
+      const billFile = billInput.files[0];
+
+      if (!name) {
+        showStatus("error", "Please share your name so I know who to reply to.");
+        return;
+      }
+
+      if (!isValidContact(contact)) {
+        showStatus("error", "Add a valid email or phone number so I can respond quickly.");
+        return;
+      }
+
+      if (!address) {
+        showStatus("error", "Add the service address so I can line up the right utility info.");
+        return;
+      }
+
+      if (!billFile) {
+        showStatus("error", "Please attach a recent bill (photo or PDF works great).");
+        return;
+      }
+
+      const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"]; 
+      if (!allowedTypes.includes(billFile.type)) {
+        showStatus("error", "Upload a PDF or image file so I can read it clearly.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("contact", contact);
+      formData.append("address", address);
+      formData.append("bill", billFile);
+      formData.append("source", "Hero lead form");
+
+      showStatus("", "");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending...";
+      }
+
+      try {
+        const response = await fetch(FORM_ENDPOINT, {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error || "Unable to submit the form right now.");
+        }
+
+        form.reset();
+        showStatus(
+          "success",
+          'Thanks! I’ll reply shortly on WhatsApp or email. Want to lock a quick hello? <a href="https://calendly.com/sal-solor/10min-intro" target="_blank" rel="noopener noreferrer">Grab a 10-min slot here</a>.'
+        );
+      } catch (err) {
+        showStatus("error", "Something went wrong. Feel free to WhatsApp me directly while I fix this.");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "🚀 Send & Get My Numbers";
+        }
+      }
+    });
   </script>
 </body>
 </html>

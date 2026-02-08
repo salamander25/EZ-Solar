@@ -1006,8 +1006,10 @@
         return;
       }
 
-      const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"]; 
-      if (!allowedTypes.includes(billFile.type)) {
+      const billType = billFile.type;
+      const isPdf = billType === "application/pdf";
+      const isImage = billType.startsWith("image/");
+      if (!isPdf && !isImage) {
         showStatus("error", "Upload a PDF or image file so I can read it clearly.");
         return;
       }
